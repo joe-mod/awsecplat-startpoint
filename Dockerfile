@@ -26,7 +26,7 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-#    -   TODO: nochmal nachschauen, ob benötigt   Create a non-root user to restrict permissions to the working directory
+#   Create a non-root user to restrict permissions to the working directory
 RUN adduser -D awsec-node && chown -R awsec-node /app
 
 #   UID set to a non-root user to avoid unnecessary privileges, the default user 'node' can be used alternatively
@@ -45,5 +45,11 @@ EXPOSE 3333
 #   Starting the node server by the 'exec form' with node directly, not with 'npm start'
 #   In that way the Node process does not miss any possible SIG-Events which could be sent - it can occur that npm does not forward every SIG-Event to the node process  
 #   reference: https://snyk.io/de/blog/10-best-practices-to-containerize-nodejs-web-applications-with-docker/
+
+#   A healthcheck is permformed to check if the container is still running
+#   TODO: gucken, warum localhost nicht klappt und container unhealthy, obwohl läuft - am curl aufruf liegts nicht
+HEALTHCHECK --interval=1m --timeout=5s \
+  CMD curl -f http://127.0.0.1:3333 || exit 1
+  
 
 CMD [ "dumb-init", "node", "app.js" ]
